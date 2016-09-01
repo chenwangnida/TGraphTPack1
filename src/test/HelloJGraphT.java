@@ -112,9 +112,6 @@ public final class HelloJGraphT {
 			for (DefaultEdge edge : ralatedEdgeSave) {
 				String potentialTangleVertice = stringGraph.getEdgeSource(edge);
 				int relatedOutDegree = stringGraph.outDegreeOf(potentialTangleVertice);
-
-				System.out.println(
-						"potentialTangleVertice:" + potentialTangleVertice + ",updateOutDegree:" + relatedOutDegree);
 				List<String> dangleVerticeList1 = new ArrayList<String>();
 				if (relatedOutDegree == 0) {
 					dangleVerticeList1.add(potentialTangleVertice);
