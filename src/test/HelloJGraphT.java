@@ -45,6 +45,11 @@ import java.util.Set;
 
 import org.jgrapht.*;
 import org.jgrapht.graph.*;
+import org.jgrapht.traverse.BreadthFirstIterator;
+import org.jgrapht.traverse.DepthFirstIterator;
+import org.jgrapht.alg.*;
+import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
+import org.jgrapht.Graphs;
 
 /**
  * A simple introduction to using JGraphT.
@@ -55,8 +60,6 @@ import org.jgrapht.graph.*;
 public final class HelloJGraphT {
 	private HelloJGraphT() {
 	} // ensure non-instantiability.
-
-
 
 	/**
 	 * The starting point for the demo.
@@ -90,6 +93,17 @@ public final class HelloJGraphT {
 
 		System.out.println(stringGraph.toString());
 
+		// get edge list of the LogestPaths
+		List<String> vertexList = getLongestPathVertexList(stringGraph);
+		for (String s : vertexList) {
+			System.out.println(s);
+
+		}
+
+		// calculate Semantic distance
+		DirectedGraph<String, DefaultEdge> ontologyDAG = createADG();
+
+		CalculateSimilarityMeasure(ontologyDAG, "v4", "v7");
 	}
 
 	public static void removeAlltangle(DirectedGraph<String, DefaultEdge> stringGraph, List<String> dangleVerticeList) {
@@ -125,6 +139,98 @@ public final class HelloJGraphT {
 		}
 	}
 
+	public static List<String> getLongestPathVertexList(DirectedGraph g) {
+		// A algorithm to find all paths
+		AllDirectedPaths<String, DefaultEdge> allPath = new AllDirectedPaths<String, DefaultEdge>(g);
+		List<GraphPath<String, DefaultEdge>> pathList = allPath.getAllPaths("v1", "v5", true, null);
+
+		List<DefaultEdge> edgeList;
+		List<DefaultEdge> LongestEdgeList;
+		int MaxPathLength = 0;
+		int IndexPathLength = 0;
+
+		for (int i = 0; i < pathList.size(); i++) {
+
+			int pathLength = pathList.get(i).getEdgeList().size();
+			if (pathLength > MaxPathLength) {
+				IndexPathLength = i;
+				MaxPathLength = pathLength;
+			}
+		}
+		System.out.println(MaxPathLength + "index:" + IndexPathLength);
+		// return pathList.get(IndexPathLength).getEdgeList();
+		return Graphs.getPathVertexList(pathList.get(IndexPathLength));
+	}
+
+	public static void CalculateSimilarityMeasure(DirectedGraph<String, DefaultEdge> g, String a, String b) {
+
+		// find the lowest common ancestor
+		String lca = new NaiveLcaFinder<String, DefaultEdge>(g).findLca(a, b);
+
+		//
+
+		double N = new DijkstraShortestPath(g, "v1", lca).getPathLength();
+		double N1 = new DijkstraShortestPath(g, "v1", a).getPathLength();
+		double N2 = new DijkstraShortestPath(g, "v1", b).getPathLength();
+
+		double sim = 2 * N / (N1 + N2);
+		System.out.println("SemanticDistance:" + sim + " ##################");
+
+		double L = new DijkstraShortestPath(g, a, b).getPathLength();
+
+		int D = MaxDepth(g);
+
+	}
+
+	private static int MaxDepth(DirectedGraph<String, DefaultEdge> g) {
+
+		Set<String> verticeset = g.vertexSet();
+
+		for (String s : verticeset) {
+			System.out.println("iterator vertice set in sequence of s:"+s);
+
+//			Graphs.successorListOf(g, null);
+		}
+		return 0;
+
+	}
+
+	private static DirectedAcyclicGraph<String, DefaultEdge> createADG() {
+
+		DirectedAcyclicGraph<String, DefaultEdge> g = new DirectedAcyclicGraph<String, DefaultEdge>(DefaultEdge.class);
+
+		String v1 = "v1";
+		String v2 = "v2";
+		String v3 = "v3";
+		String v4 = "v4";
+		String v5 = "v5";
+		String v6 = "v6";
+		String v7 = "v7";
+		String v8 = "v8";
+
+		// add the vertices
+		g.addVertex(v1);
+		g.addVertex(v2);
+		g.addVertex(v3);
+		g.addVertex(v4);
+		g.addVertex(v5);
+		g.addVertex(v6);
+		g.addVertex(v7);
+		g.addVertex(v8);
+
+		// add edges to create a circuit
+		g.addEdge(v1, v2);
+		g.addEdge(v1, v3);
+		g.addEdge(v3, v4);
+		g.addEdge(v3, v5);
+		g.addEdge(v3, v6);
+		g.addEdge(v6, v7);
+		g.addEdge(v6, v8);
+
+		return g;
+
+	}
+
 	private static DirectedGraph<String, DefaultEdge> createStringGraph() {
 		DirectedGraph<String, DefaultEdge> g = new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
 
@@ -139,6 +245,8 @@ public final class HelloJGraphT {
 		String v9 = "v9";
 		String v10 = "v10";
 		String v11 = "v11";
+		String v12 = "v12";
+		String v13 = "v13";
 
 		// add the vertices
 		g.addVertex(v1);
@@ -152,12 +260,15 @@ public final class HelloJGraphT {
 		g.addVertex(v9);
 		g.addVertex(v10);
 		g.addVertex(v11);
-
-
+		g.addVertex(v12);
+		g.addVertex(v13);
 
 		// add edges to create a circuit
 		g.addEdge(v1, v2);
 		g.addEdge(v2, v3);
+		g.addEdge(v2, v12);
+		g.addEdge(v12, v13);
+		g.addEdge(v13, v4);
 		g.addEdge(v3, v6);
 		g.addEdge(v6, v7);
 		g.addEdge(v6, v8);
