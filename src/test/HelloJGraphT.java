@@ -39,8 +39,10 @@ package test;
 
 import java.net.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.jgrapht.*;
@@ -164,6 +166,7 @@ public final class HelloJGraphT {
 
 	public static void CalculateSimilarityMeasure(DirectedGraph<String, DefaultEdge> g, String a, String b) {
 
+		double similarityValue;
 		// find the lowest common ancestor
 		String lca = new NaiveLcaFinder<String, DefaultEdge>(g).findLca(a, b);
 
@@ -179,19 +182,42 @@ public final class HelloJGraphT {
 		double L = new DijkstraShortestPath(g, a, b).getPathLength();
 
 		int D = MaxDepth(g);
+		int r = 1;
+		double simNew = 2 * N * (Math.pow(Math.E, -r * L / D)) / (N1 + N2);
+
+		//a and b are neighbourhood concept
+
+		List<String> neighborVerticeList = Graphs.neighborListOf(g, a);
+		boolean isNeighbourhood = neighborVerticeList.contains(b);
+
+		if (isNeighbourhood = true) {
+			similarityValue = simNew;
+		} else {
+			similarityValue = sim;
+		}
 
 	}
 
 	private static int MaxDepth(DirectedGraph<String, DefaultEdge> g) {
 
+		int depth = 0;
+
 		Set<String> verticeset = g.vertexSet();
 
-		for (String s : verticeset) {
-			System.out.println("iterator vertice set in sequence of s:"+s);
+		// update the depth while iterator successor
+		for (String v : verticeset) {
+			System.out.println("iterator vertice set in sequence of s:" + v);
 
-//			Graphs.successorListOf(g, null);
+			List<String> verticeList = Graphs.successorListOf(g, v);
+
+			if (verticeList.size() > 0) {
+				depth++;
+			}
 		}
-		return 0;
+
+		System.out.println(depth);
+
+		return depth;
 
 	}
 
