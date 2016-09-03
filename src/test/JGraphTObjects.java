@@ -56,8 +56,8 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
  * @author Chen Wang
  * @since Sep 3, 2016
  */
-public final class HelloJGraphT {
-	private HelloJGraphT() {
+public final class JGraphTObjects {
+	private JGraphTObjects() {
 	} // ensure non-instantiability.
 
 	/**
@@ -282,6 +282,11 @@ public final class HelloJGraphT {
 		String v11 = "v11";
 		String v12 = "v12";
 		String v13 = "v13";
+
+
+		Service service1 = new Service(v1);
+
+
 
 		// add the vertices
 		g.addVertex(v1);
