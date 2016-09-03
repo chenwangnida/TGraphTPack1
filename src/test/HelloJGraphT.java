@@ -47,17 +47,14 @@ import java.util.Set;
 
 import org.jgrapht.*;
 import org.jgrapht.graph.*;
-import org.jgrapht.traverse.BreadthFirstIterator;
-import org.jgrapht.traverse.DepthFirstIterator;
 import org.jgrapht.alg.*;
 import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
-import org.jgrapht.Graphs;
 
 /**
- * A simple introduction to using JGraphT.
+ * A complex introduction to using JGraphT.
  *
- * @author Barak Naveh
- * @since Jul 27, 2003
+ * @author Chen Wang
+ * @since Sep 3, 2016
  */
 public final class HelloJGraphT {
 	private HelloJGraphT() {
@@ -105,7 +102,8 @@ public final class HelloJGraphT {
 		// calculate Semantic distance
 		DirectedGraph<String, DefaultEdge> ontologyDAG = createADG();
 
-		CalculateSimilarityMeasure(ontologyDAG, "v4", "v7");
+		Double semanticDistance = CalculateSimilarityMeasure(ontologyDAG, "v7", "v8");
+		System.out.println("############semantic distanceValue:" + semanticDistance);
 	}
 
 	public static void removeAlltangle(DirectedGraph<String, DefaultEdge> stringGraph, List<String> dangleVerticeList) {
@@ -164,7 +162,7 @@ public final class HelloJGraphT {
 		return Graphs.getPathVertexList(pathList.get(IndexPathLength));
 	}
 
-	public static void CalculateSimilarityMeasure(DirectedGraph<String, DefaultEdge> g, String a, String b) {
+	public static double CalculateSimilarityMeasure(DirectedGraph<String, DefaultEdge> g, String a, String b) {
 
 		double similarityValue;
 		// find the lowest common ancestor
@@ -179,23 +177,40 @@ public final class HelloJGraphT {
 		double sim = 2 * N / (N1 + N2);
 		System.out.println("SemanticDistance:" + sim + " ##################");
 
-		double L = new DijkstraShortestPath(g, a, b).getPathLength();
+		double L = new DijkstraShortestPath(g, lca, a).getPathLength()
+				+ new DijkstraShortestPath(g, lca, b).getPathLength();
 
 		int D = MaxDepth(g);
 		int r = 1;
 		double simNew = 2 * N * (Math.pow(Math.E, -r * L / D)) / (N1 + N2);
+		System.out.println("SemanticDistance2:" + simNew + " ##################");
 
-		//a and b are neighbourhood concept
-
-		List<String> neighborVerticeList = Graphs.neighborListOf(g, a);
-		boolean isNeighbourhood = neighborVerticeList.contains(b);
-
-		if (isNeighbourhood = true) {
+		if (isNeighbourConcept(g, a, b) == true) {
 			similarityValue = simNew;
 		} else {
 			similarityValue = sim;
 		}
 
+		return similarityValue;
+	}
+
+	private static boolean isNeighbourConcept(DirectedGraph<String, DefaultEdge> g, String a, String b) {
+
+		boolean isNeighbourConcept = false;
+		Set<DefaultEdge> incomingEdgeList1 = g.incomingEdgesOf(a);
+		Set<DefaultEdge> incomingEdgeList2 = g.incomingEdgesOf(b);
+
+		for (DefaultEdge e1 : incomingEdgeList1) {
+			String source1 = g.getEdgeSource(e1);
+			for (DefaultEdge e2 : incomingEdgeList2) {
+				String source2 = g.getEdgeSource(e2);
+				if (source1.equals(source2)) {
+					isNeighbourConcept = true;
+				}
+			}
+		}
+
+		return isNeighbourConcept;
 	}
 
 	private static int MaxDepth(DirectedGraph<String, DefaultEdge> g) {
@@ -206,8 +221,6 @@ public final class HelloJGraphT {
 
 		// update the depth while iterator successor
 		for (String v : verticeset) {
-			System.out.println("iterator vertice set in sequence of s:" + v);
-
 			List<String> verticeList = Graphs.successorListOf(g, v);
 
 			if (verticeList.size() > 0) {
@@ -215,7 +228,7 @@ public final class HelloJGraphT {
 			}
 		}
 
-		System.out.println(depth);
+		System.out.println("the depth of DAG:" + depth);
 
 		return depth;
 
