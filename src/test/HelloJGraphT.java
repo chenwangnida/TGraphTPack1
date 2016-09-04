@@ -98,7 +98,7 @@ public final class HelloJGraphT {
 		// calculate Semantic distance
 		DirectedGraph<String, DefaultEdge> ontologyDAG = createADG();
 
-		Double semanticDistance = CalculateSimilarityMeasure(ontologyDAG, "v7", "v8");
+		Double semanticDistance = CalculateSimilarityMeasure(ontologyDAG, "v2", "v8");
 		System.out.println("############semantic distanceValue:" + semanticDistance);
 	}
 
