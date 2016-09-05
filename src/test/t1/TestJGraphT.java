@@ -1,4 +1,4 @@
-package test;
+package test.t1;
 /* ==========================================
  * JGraphT : a free Java graph-theory library
  * ==========================================
@@ -56,8 +56,8 @@ import org.jgrapht.experimental.dag.DirectedAcyclicGraph;
  * @author Chen Wang
  * @since Sep 3, 2016
  */
-public final class HelloJGraphT {
-	private HelloJGraphT() {
+public final class TestJGraphT {
+	private TestJGraphT() {
 	} // ensure non-instantiability.
 
 	/**
@@ -67,7 +67,7 @@ public final class HelloJGraphT {
 	 *            ignored.
 	 */
 	public static void main(String[] args) {
-		DirectedGraph<String, DefaultEdge> stringGraph = createStringGraph();
+		DirectedGraph<String, ServiceEdge> stringGraph = createStringGraph();
 
 		System.out.println("graph printing " + stringGraph.toString());
 
@@ -96,30 +96,30 @@ public final class HelloJGraphT {
 		}
 
 		// calculate Semantic distance
-		DirectedGraph<String, DefaultEdge> ontologyDAG = createADG();
+		DirectedGraph<String, ServiceEdge> ontologyDAG = createADG();
 
-		Double semanticDistance = CalculateSimilarityMeasure(ontologyDAG, "v2", "v8");
+		Double semanticDistance = CalculateSimilarityMeasure(ontologyDAG, "v7", "v8");
 		System.out.println("############semantic distanceValue:" + semanticDistance);
 	}
 
-	public static void removeAlltangle(DirectedGraph<String, DefaultEdge> stringGraph, List<String> dangleVerticeList) {
+	public static void removeAlltangle(DirectedGraph<String, ServiceEdge> stringGraph, List<String> dangleVerticeList) {
 		// Iterator the endTangle
 		for (String danglevertice : dangleVerticeList) {
 
-			Set<DefaultEdge> relatedEdge = stringGraph.incomingEdgesOf(danglevertice);
+			Set<ServiceEdge> relatedEdge = stringGraph.incomingEdgesOf(danglevertice);
 
-			for (DefaultEdge edge : relatedEdge) {
+			for (ServiceEdge edge : relatedEdge) {
 				String potentialTangleVertice = stringGraph.getEdgeSource(edge);
 
 				System.out.println("potentialTangleVertice:" + potentialTangleVertice);
 			}
 
-			Set<DefaultEdge> ralatedEdgeSave = new HashSet<DefaultEdge>();
+			Set<ServiceEdge> ralatedEdgeSave = new HashSet<ServiceEdge>();
 			ralatedEdgeSave.addAll(relatedEdge);
 
 			stringGraph.removeVertex(danglevertice);
 
-			for (DefaultEdge edge : ralatedEdgeSave) {
+			for (ServiceEdge edge : ralatedEdgeSave) {
 				String potentialTangleVertice = stringGraph.getEdgeSource(edge);
 				int relatedOutDegree = stringGraph.outDegreeOf(potentialTangleVertice);
 				List<String> dangleVerticeList1 = new ArrayList<String>();
@@ -137,11 +137,11 @@ public final class HelloJGraphT {
 
 	public static List<String> getLongestPathVertexList(DirectedGraph g) {
 		// A algorithm to find all paths
-		AllDirectedPaths<String, DefaultEdge> allPath = new AllDirectedPaths<String, DefaultEdge>(g);
-		List<GraphPath<String, DefaultEdge>> pathList = allPath.getAllPaths("v1", "v5", true, null);
+		AllDirectedPaths<String, ServiceEdge> allPath = new AllDirectedPaths<String, ServiceEdge>(g);
+		List<GraphPath<String, ServiceEdge>> pathList = allPath.getAllPaths("v1", "v5", true, null);
 
-		List<DefaultEdge> edgeList;
-		List<DefaultEdge> LongestEdgeList;
+		List<ServiceEdge> edgeList;
+		List<ServiceEdge> LongestEdgeList;
 		int MaxPathLength = 0;
 		int IndexPathLength = 0;
 
@@ -158,17 +158,17 @@ public final class HelloJGraphT {
 		return Graphs.getPathVertexList(pathList.get(IndexPathLength));
 	}
 
-	public static double CalculateSimilarityMeasure(DirectedGraph<String, DefaultEdge> g, String a, String b) {
+	public static double CalculateSimilarityMeasure(DirectedGraph<String, ServiceEdge> g, String a, String b) {
 
 		double similarityValue;
 		// find the lowest common ancestor
-		String lca = new NaiveLcaFinder<String, DefaultEdge>(g).findLca(a, b);
+		String lca = new NaiveLcaFinder<String, ServiceEdge>(g).findLca(a, b);
 
 		//
 
-		double N = new DijkstraShortestPath(g, "v1", lca).getPathLength();
-		double N1 = new DijkstraShortestPath(g, "v1", a).getPathLength();
-		double N2 = new DijkstraShortestPath(g, "v1", b).getPathLength();
+		double N = new DijkstraShortestPath(g, "v1", lca).getPathLength() + 1;
+		double N1 = new DijkstraShortestPath(g, "v1", a).getPathLength() + 1;
+		double N2 = new DijkstraShortestPath(g, "v1", b).getPathLength() + 1;
 
 		double sim = 2 * N / (N1 + N2);
 		System.out.println("SemanticDistance:" + sim + " ##################");
@@ -176,7 +176,7 @@ public final class HelloJGraphT {
 		double L = new DijkstraShortestPath(g, lca, a).getPathLength()
 				+ new DijkstraShortestPath(g, lca, b).getPathLength();
 
-		int D = MaxDepth(g);
+		int D = MaxDepth(g) + 1;
 		int r = 1;
 		double simNew = 2 * N * (Math.pow(Math.E, -r * L / D)) / (N1 + N2);
 		System.out.println("SemanticDistance2:" + simNew + " ##################");
@@ -190,15 +190,15 @@ public final class HelloJGraphT {
 		return similarityValue;
 	}
 
-	private static boolean isNeighbourConcept(DirectedGraph<String, DefaultEdge> g, String a, String b) {
+	private static boolean isNeighbourConcept(DirectedGraph<String, ServiceEdge> g, String a, String b) {
 
 		boolean isNeighbourConcept = false;
-		Set<DefaultEdge> incomingEdgeList1 = g.incomingEdgesOf(a);
-		Set<DefaultEdge> incomingEdgeList2 = g.incomingEdgesOf(b);
+		Set<ServiceEdge> incomingEdgeList1 = g.incomingEdgesOf(a);
+		Set<ServiceEdge> incomingEdgeList2 = g.incomingEdgesOf(b);
 
-		for (DefaultEdge e1 : incomingEdgeList1) {
+		for (ServiceEdge e1 : incomingEdgeList1) {
 			String source1 = g.getEdgeSource(e1);
-			for (DefaultEdge e2 : incomingEdgeList2) {
+			for (ServiceEdge e2 : incomingEdgeList2) {
 				String source2 = g.getEdgeSource(e2);
 				if (source1.equals(source2)) {
 					isNeighbourConcept = true;
@@ -209,7 +209,7 @@ public final class HelloJGraphT {
 		return isNeighbourConcept;
 	}
 
-	private static int MaxDepth(DirectedGraph<String, DefaultEdge> g) {
+	private static int MaxDepth(DirectedGraph<String, ServiceEdge> g) {
 
 		int depth = 0;
 
@@ -230,9 +230,9 @@ public final class HelloJGraphT {
 
 	}
 
-	private static DirectedAcyclicGraph<String, DefaultEdge> createADG() {
+	private static DirectedAcyclicGraph<String, ServiceEdge> createADG() {
 
-		DirectedAcyclicGraph<String, DefaultEdge> g = new DirectedAcyclicGraph<String, DefaultEdge>(DefaultEdge.class);
+		DirectedAcyclicGraph<String, ServiceEdge> g = new DirectedAcyclicGraph<String, ServiceEdge>(ServiceEdge.class);
 
 		String v1 = "v1";
 		String v2 = "v2";
@@ -266,8 +266,8 @@ public final class HelloJGraphT {
 
 	}
 
-	private static DirectedGraph<String, DefaultEdge> createStringGraph() {
-		DirectedGraph<String, DefaultEdge> g = new DefaultDirectedGraph<String, DefaultEdge>(DefaultEdge.class);
+	private static DirectedGraph<String, ServiceEdge> createStringGraph() {
+		DirectedGraph<String, ServiceEdge> g = new DefaultDirectedGraph<String, ServiceEdge>(ServiceEdge.class);
 
 		String v1 = "v1";
 		String v2 = "v2";
@@ -299,20 +299,20 @@ public final class HelloJGraphT {
 		g.addVertex(v13);
 
 		// add edges to create a circuit
-		g.addEdge(v1, v2);
-		g.addEdge(v2, v3);
-		g.addEdge(v2, v12);
-		g.addEdge(v12, v13);
-		g.addEdge(v13, v4);
-		g.addEdge(v3, v6);
-		g.addEdge(v6, v7);
-		g.addEdge(v6, v8);
-		g.addEdge(v7, v9);
-		g.addEdge(v8, v9);
-		g.addEdge(v3, v4);
-		g.addEdge(v4, v5);
-		g.addEdge(v3, v10);
-		g.addEdge(v10, v11);
+		g.addEdge(v1, v2, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v2, v3, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v2, v12, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v12, v13, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v13, v4, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v3, v6, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v6, v7, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v6, v8, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v7, v9, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v8, v9, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v3, v4, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v4, v5, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v3, v10, new ServiceEdge(0.00, 0.00));
+		g.addEdge(v10, v11, new ServiceEdge(0.00, 0.00));
 
 		return g;
 	}
